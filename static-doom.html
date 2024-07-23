@@ -16,20 +16,21 @@
     </div>
   </div>
 
-  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
   <script src="https://js-dos.com/cdn/js-dos-api.js"></script>
-  <script src="assets/js/veeva/veeva-library.js"></script>
-  <script src="assets/js/veeva/veeva-methods.js"></script>
+  <!-- <script src="assets/js/veeva/veeva-library.js"></script> -->
 
   <script>
     const dosbox = new Dosbox({
       id: "dosbox",
-      onload: (dosbox) => dosbox.run('https://js-dos.com/cdn/upload/DOOM-@evilution.zip', "./DOOM/DOOM.EXE"),
+      onload: (dosbox) => {
+        dosbox.run('https://js-dos.com/cdn/upload/DOOM-@evilution.zip', "./DOOM/DOOM.EXE");
+      },
       onrun: (dosbox, app) => {
-        console.log("App '" + app + "' is runned");
+        console.log("App '" + app + "' is running");
       }
     });
-    $(".dosbox-start").click();
+
+    dosbox.ui.start.click();
   </script>
 </body>
 
