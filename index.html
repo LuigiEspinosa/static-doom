@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="msapplication-tap-highlight" content="no">
+  <meta name="viewport" content="width=device-width, user-scalable=no, shrink-to-fit=no">
+  <title>Static DOOM</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+
+<body>
+  <div class="container">
+    <div id="dosbox">
+      <button onclick="dosbox.requestFullScreen();">Make fullscreen</button>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://js-dos.com/cdn/js-dos-api.js"></script>
+  <script src="assets/js/veeva/veeva-library.js"></script>
+  <script src="assets/js/veeva/veeva-methods.js"></script>
+
+  <script>
+    const dosbox = new Dosbox({
+      id: "dosbox",
+      onload: (dosbox) => dosbox.run('https://js-dos.com/cdn/upload/DOOM-@evilution.zip', "./DOOM/DOOM.EXE"),
+      onrun: (dosbox, app) => {
+        console.log("App '" + app + "' is runned");
+      }
+    });
+    $(".dosbox-start").click();
+  </script>
+</body>
+
+</html>
