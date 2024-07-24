@@ -10,14 +10,19 @@
 </head>
 
 <body>
-  <div class="container">
+  <div id="root-container" class="container" style="display: none;">
+    <div id="root"></div>
+  </div>
+
+  <div id="dosbox-container" class="container">
     <div id="dosbox">
-      <button onclick="dosbox.requestFullScreen();">Make fullscreen</button>
+      <button id="emulator" style="margin-top: 2rem;">Feeling 3-Dimensional?</button>
     </div>
   </div>
 
   <script src="https://js-dos.com/cdn/js-dos-api.js"></script>
-  <!-- <script src="assets/js/veeva/veeva-library.js"></script> -->
+  <script src="https://v8.js-dos.com/latest/emulators/emulators.js"></script>
+  <script src="assets/js/veeva/veeva-library.js"></script>
 
   <script>
     const dosbox = new Dosbox({
@@ -31,6 +36,85 @@
     });
 
     dosbox.ui.start.click();
+  </script>
+
+  <script type="module">
+    import * as THREE from 'https://unpkg.com/three@latest/build/three.module.js';
+
+    function runCube() {
+      const game = document.getElementById('dosbox');
+      if (game) {
+        dosbox.run();
+
+        const container = document.getElementById('dosbox-container');
+        container.style.display = 'none';
+      }
+
+      emulators.pathPrefix = "https://v8.js-dos.com/latest/emulators/";
+
+      const img = document.createElement("canvas");
+      img.width = 320;
+      img.height = 200;
+
+      const ctx = img.getContext('2d');
+      const texture = new THREE.CanvasTexture(img);
+
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x444444);
+
+      const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      const renderer = new THREE.WebGLRenderer();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+
+      const root = document.getElementById("root-container");
+      root.style.display = 'block';
+      document.getElementById("root").appendChild(renderer.domElement);
+
+      const geometry = new THREE.BoxGeometry();
+      const material = new THREE.MeshBasicMaterial({
+        map: texture,
+      });
+      const cube = new THREE.Mesh(geometry, material);
+      scene.add(cube);
+
+      camera.position.z = 2;
+
+      const animate = function () {
+        requestAnimationFrame(animate);
+
+        cube.rotation.x += 0.004;
+        cube.rotation.y += 0.004;
+
+        renderer.render(scene, camera);
+      };
+
+      animate();
+
+      async function runDoom() {
+        stop();
+
+        const bundle = await fetch("https://cdn.dos.zone/custom/dos/ultimate-doom.jsdos");
+        const ci = await emulators.dosWorker(new Uint8Array(await bundle.arrayBuffer()));
+        const rgba = new Uint8ClampedArray(320 * 200 * 4);
+
+        ci.events().onFrame((rgb, _rgba) => {
+          for (let next = 0; next < 320 * 200; ++next) {
+            rgba[next * 4 + 0] = rgb[next * 3 + 0];
+            rgba[next * 4 + 1] = rgb[next * 3 + 1];
+            rgba[next * 4 + 2] = rgb[next * 3 + 2];
+            rgba[next * 4 + 3] = 255;
+          }
+
+          ctx?.putImageData(new ImageData(rgba, 320, 200), 0, 0);
+          texture.needsUpdate = true;
+        });
+      }
+
+      runDoom();
+    }
+
+    const button = document.getElementById('emulator');
+    button.addEventListener('click', runCube)
   </script>
 </body>
 
